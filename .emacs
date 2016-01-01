@@ -24,7 +24,6 @@
     ace-window
     async
     avy
-    aurora-theme
     auto-complete
     base16-theme
     browse-kill-ring
@@ -39,6 +38,8 @@
     evil
     evil-leader
     expand-region
+    fill-column-indicator
+    fireplace
     git-commit
     helm
     helm-circe
@@ -196,7 +197,6 @@
     (add-to-list 'initial-frame-alist '(font . "DejaVu Sans Mono-10"))
     (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-10")))))
 
-
 ;;-----------------------------------------------;;
 ;; Helm / Helm Extensions                        ;;
 ;;-----------------------------------------------;;
@@ -256,12 +256,14 @@
 (add-hook 'prog-mode-hook
     (lambda()
         (linum-mode 1)
-        (setq indicate-empty-lines t)))
+        ;;(setq indicate-empty-lines t)
+        ))
 
 (add-hook 'org-mode-hook
     (lambda()
         (linum-mode 1)
-        (setq indicate-empty-lines t)))
+        ;;(setq indicate-empty-lines t)
+        ))
 
 ;;-----------------------------------------------;;
 ;; Vi-style tilde for empty lines                ;;
@@ -363,12 +365,36 @@
 (global-page-break-lines-mode)
 
 ;;-----------------------------------------------;;
+;; Snippets                                      ;;
+;;-----------------------------------------------;;
+
+(require 'yasnippet)
+
+;;(yas-global-mode 1)
+(yas-reload-all)
+(add-hook 'prog-mode-hook #'yas-minor-mode)
+
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-minor-mode-map (kbd "<C-tab>") 'yas-expand)
+
+;;(setq ac-source-yasnippet nil)
+
+;;-----------------------------------------------;;
 ;; Auto-Complete                                 ;;
 ;;-----------------------------------------------;;
 
 (ac-config-default)
 
 (ac-linum-workaround)
+
+(defun my/ac-linum-workaround ()
+  "linum-mode tries to display the line numbers even for the
+completion menu. This workaround stops that annoying behavior."
+  (interactive)
+  (defadvice linum-update (around ac-linum-update-workaround activate)
+    (unless ac-completing
+      ad-do-it)))
 
 ;;-----------------------------------------------;;
 ;; Shell Pop                                     ;;
@@ -391,6 +417,13 @@
 
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:complete-on-dot t)
+
+;;-----------------------------------------------;;
+;; Robe                                          ;;
+;;-----------------------------------------------;;
+
+(add-hook 'ruby-mode-hook 'robe-mode)
+(add-hook 'robe-mode-hook 'ac-robe-setup)
 
 ;;-----------------------------------------------;;
 ;; Transparency                                  ;;
@@ -493,6 +526,42 @@
 ;;-----------------------------------------------;;
 
 (global-undo-tree-mode)
+
+;;-----------------------------------------------;;
+;; Expand Region                                 ;;
+;;-----------------------------------------------;;
+
+(require 'expand-region)
+
+(global-set-key (kbd "C-=") 'er/expand-region)
+
+;;-----------------------------------------------;;
+;; Fill Column Indicator                         ;;
+;;-----------------------------------------------;;
+
+(require 'fill-column-indicator)
+
+(setq fci-rule-color "darkred")
+(setq fci-rule-column 100)
+
+(defun sanityinc/fci-enabled-p () (symbol-value 'fci-mode))
+
+(defvar sanityinc/fci-mode-suppressed nil)
+(make-variable-buffer-local 'sanityinc/fci-mode-suppressed)
+
+(defadvice popup-create (before suppress-fci-mode activate)
+  "Suspend fci-mode while popups are visible"
+  (let ((fci-enabled (sanityinc/fci-enabled-p)))
+    (when fci-enabled
+      (setq sanityinc/fci-mode-suppressed fci-enabled)
+      (turn-off-fci-mode))))
+
+(defadvice popup-delete (after restore-fci-mode activate)
+  "Restore fci-mode when all popups have closed"
+  (when (and sanityinc/fci-mode-suppressed
+             (null popup-instances))
+    (setq sanityinc/fci-mode-suppressed nil)
+    (turn-on-fci-mode)))
 
 ;;-----------------------------------------------;;
 ;; Diminish                                      ;;
