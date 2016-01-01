@@ -33,6 +33,7 @@
     dash
     diminish
     elfeed
+    emmet-mode
     epl
     epoch-view
     evil
@@ -40,6 +41,7 @@
     expand-region
     fill-column-indicator
     fireplace
+    flycheck
     git-commit
     helm
     helm-circe
@@ -67,6 +69,7 @@
     pkg-info
     powerline
     projectile
+    python-mode
     rainbow-delimiters
     rainbow-mode
     restclient
@@ -76,6 +79,7 @@
     shell-pop
     smart-mode-line-powerline-theme
     smart-mode-line
+    smartparens
     spaceline
     twittering-mode
     undo-tree
@@ -412,6 +416,25 @@ completion menu. This workaround stops that annoying behavior."
 (global-set-key [f7] 'shell-pop)
 
 ;;-----------------------------------------------;;
+;; Flycheck                                      ;;
+;;-----------------------------------------------;;
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;;-----------------------------------------------;;
+;; Virtualenv Support                            ;;
+;;-----------------------------------------------;;
+
+(require 'virtualenvwrapper)
+
+(venv-initialize-interactive-shells) ;; if you want interactive shell support
+(venv-initialize-eshell) ;; if you want eshell support
+(setq venv-location "/path/to/your/virtualenvs/")
+
+;;(setq venv-location '("/path/to/project1-env/"
+;;                      "/path/to/ptoject2-env/"))
+
+;;-----------------------------------------------;;
 ;; Jedi                                          ;;
 ;;-----------------------------------------------;;
 
@@ -574,6 +597,20 @@ completion menu. This workaround stops that annoying behavior."
 (diminish 'auto-complete-mode)
 (diminish 'page-break-lines-mode)
 (diminish 'undo-tree-mode)
+(diminish 'flycheck-mode)
+
+;;-----------------------------------------------;;
+;; Paredit                                       ;;
+;;-----------------------------------------------;;
+
+(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+
+(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 
 ;;-----------------------------------------------;;
 ;; Miscellaneous                                 ;;
