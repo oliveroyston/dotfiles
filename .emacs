@@ -123,13 +123,15 @@
 
 (setq ring-bell-function 'ignore)
 
-(tool-bar-mode -1)
+(if (display-graphic-p)
+    (progn
+      (tool-bar-mode -1)
+      (scroll-bar-mode -1)
+      (mouse-wheel-mode t)))
 
 (unless (eq system-type 'darwin)
   (menu-bar-mode -1)
 )
-
-(scroll-bar-mode -1)
 
 (blink-cursor-mode -1)
 
@@ -140,13 +142,10 @@
 (setq inhibit-startup-echo-area-message "oliveroyston")
 
 (line-number-mode 1)
-
 (column-number-mode 1)
 
-(mouse-wheel-mode t)
-
-(setq initial-frame-alist '((width . 120) (height . 56)))
-(setq default-frame-alist '((width . 100) (height . 52)))
+(setq initial-frame-alist '((width . 120) (height . 52)))
+(setq default-frame-alist '((width . 120) (height . 52)))
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
@@ -169,6 +168,11 @@
 (setq default-major-mode 'text-mode)
 
 (setq-default indent-tabs-mode nil)
+
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+
+(global-prettify-symbols-mode 1)
 
 ;;-----------------------------------------------;;
 ;; Backups                                       ;;
@@ -273,11 +277,14 @@
 ;; Vi-style tilde for empty lines                ;;
 ;;-----------------------------------------------;;
 
+(if (display-graphic-p)
 (progn
   (define-fringe-bitmap 'tilde [0 0 0 113 219 142 0 0] nil nil 'center)
-  (setcdr (assq 'empty-line fringe-indicator-alist) 'tilde))
+  (setcdr (assq 'empty-line fringe-indicator-alist) 'tilde)))
 
-(set-fringe-bitmap-face 'tilde 'font-lock-comment-face)
+(if (display-graphic-p)
+(progn
+(set-fringe-bitmap-face 'tilde 'font-lock-comment-face)))
 
 ;;-----------------------------------------------;;
 ;; Magit                                         ;;
@@ -420,33 +427,6 @@ completion menu. This workaround stops that annoying behavior."
 ;;-----------------------------------------------;;
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
-
-;;-----------------------------------------------;;
-;; Virtualenv Support                            ;;
-;;-----------------------------------------------;;
-
-(require 'virtualenvwrapper)
-
-(venv-initialize-interactive-shells) ;; if you want interactive shell support
-(venv-initialize-eshell) ;; if you want eshell support
-(setq venv-location "/path/to/your/virtualenvs/")
-
-;;(setq venv-location '("/path/to/project1-env/"
-;;                      "/path/to/ptoject2-env/"))
-
-;;-----------------------------------------------;;
-;; Jedi                                          ;;
-;;-----------------------------------------------;;
-
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:complete-on-dot t)
-
-;;-----------------------------------------------;;
-;; Robe                                          ;;
-;;-----------------------------------------------;;
-
-(add-hook 'ruby-mode-hook 'robe-mode)
-(add-hook 'robe-mode-hook 'ac-robe-setup)
 
 ;;-----------------------------------------------;;
 ;; Transparency                                  ;;
@@ -620,8 +600,73 @@ completion menu. This workaround stops that annoying behavior."
 
 (server-start)
 
+;;-------------------------------------------------------------------------------------------------;;
+;; Python Customizations                                                                           ;;
+;;-------------------------------------------------------------------------------------------------;;
 ;;-----------------------------------------------;;
-;; End of initialization                         ;;
+;; Prettify Symbols                              ;;
 ;;-----------------------------------------------;;
+
+(defun my-python-prettify-symbols ()
+  "make some word or string show as pretty Unicode symbols"
+  (setq prettify-symbols-alist
+        '(
+          ("lambda" . 955)  ; λ
+          ;;("->"     . 8594) ; →
+          ;;("=>"     . 8658) ; ⇒
+          ;;("map"    . 8614) ; ↦
+          )))
+
+(add-hook 'python-mode-hook 'my-python-prettify-symbols)
+
+;;-----------------------------------------------;;
+;; Virtualenv Support                            ;;
+;;-----------------------------------------------;;
+
+(require 'virtualenvwrapper)
+
+(venv-initialize-interactive-shells) ;; if you want interactive shell support
+(venv-initialize-eshell) ;; if you want eshell support
+(setq venv-location "/path/to/your/virtualenvs/")
+
+;;(setq venv-location '("/path/to/project1-env/"
+;;                      "/path/to/ptoject2-env/"))
+
+;;-----------------------------------------------;;
+;; Jedi                                          ;;
+;;-----------------------------------------------;;
+
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+
+;;-------------------------------------------------------------------------------------------------;;
+;; Ruby Customizations                                                                             ;;
+;;-------------------------------------------------------------------------------------------------;;
+;;-----------------------------------------------;;
+;; Prettify Symbols                              ;;
+;;-----------------------------------------------;;
+
+(defun my-ruby-prettify-symbols ()
+  "make some word or string show as pretty Unicode symbols"
+  (setq prettify-symbols-alist
+        '(
+          ("lambda" . 955)  ; λ
+          ;;("->"     . 8594) ; →
+          ;;("=>"     . 8658) ; ⇒
+          ;;("map"    . 8614) ; ↦
+          )))
+
+(add-hook 'ruby-mode-hook 'my-ruby-prettify-symbols)
+
+;;-----------------------------------------------;;
+;; Robe                                          ;;
+;;-----------------------------------------------;;
+
+(add-hook 'ruby-mode-hook 'robe-mode)
+(add-hook 'robe-mode-hook 'ac-robe-setup)
+
+;;-------------------------------------------------------------------------------------------------;;
+;; End of initialization                                                                           ;;
+;;-------------------------------------------------------------------------------------------------;;
 
 (message "GNU Emacs")
