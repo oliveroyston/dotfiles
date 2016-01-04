@@ -54,6 +54,7 @@
     helm-robe
     helm-spotify
     jedi
+    json-mode
     linum-relative
     magit
     magit-popup
@@ -186,6 +187,14 @@
 ;;-----------------------------------------------;;
 
 (load-theme 'monokai t)
+
+(set-face-foreground 'font-lock-comment-face "OliveDrab")
+(set-face-foreground 'font-lock-comment-delimiter-face "OliveDrab")
+
+
+(set-face-foreground 'font-lock-comment-face "grey45")
+(set-face-foreground 'font-lock-comment-delimiter-face "grey45")
+
 
 ;;-----------------------------------------------;;
 ;; Default fonts                                 ;;
@@ -669,4 +678,6 @@ completion menu. This workaround stops that annoying behavior."
 ;; End of initialization                                                                           ;;
 ;;-------------------------------------------------------------------------------------------------;;
 
+
+(require 'legalese)
 (message "GNU Emacs")
