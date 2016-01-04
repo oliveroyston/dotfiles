@@ -188,13 +188,8 @@
 
 (load-theme 'monokai t)
 
-(set-face-foreground 'font-lock-comment-face "OliveDrab")
-(set-face-foreground 'font-lock-comment-delimiter-face "OliveDrab")
-
-
 (set-face-foreground 'font-lock-comment-face "grey45")
 (set-face-foreground 'font-lock-comment-delimiter-face "grey45")
-
 
 ;;-----------------------------------------------;;
 ;; Default fonts                                 ;;
