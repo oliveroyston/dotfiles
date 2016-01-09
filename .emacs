@@ -39,6 +39,7 @@
     evil
     evil-leader
     expand-region
+    f
     fill-column-indicator
     fireplace
     flycheck
@@ -76,6 +77,7 @@
     restclient
     reveal-in-osx-finder
     robe
+    s
     scratch
     shell-pop
     smart-mode-line-powerline-theme
@@ -603,6 +605,27 @@ completion menu. This workaround stops that annoying behavior."
 (winner-mode 1)
 
 (server-start)
+
+;;-----------------------------------------------;;
+;; HTML Bookmarks                                ;;
+;;-----------------------------------------------;;
+
+(require 's)
+(require 'f)
+
+(defvar oli/bookmark-data
+  (--map (s-split "|" it)  (s-split "\n" (f-read "~/data.txt") t)))
+
+(defvar oli/bookmark-source
+      `((name . "Bookmark Manager")
+        (candidates . ,(mapcar 'car oli/bookmark-data))
+        (action . (lambda (candidate)
+                    (browse-url (format "%s" (car (cdr (assoc candidate oli/bookmark-data)))))))))
+
+(defun oli/bookmarks ()
+    "Allow my HTML bookmarks to be opened / searched via helm."
+    (interactive)
+    (helm :sources '(oli/bookmark-source)))
 
 ;;-------------------------------------------------------------------------------------------------;;
 ;; Python Customizations                                                                           ;;
