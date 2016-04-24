@@ -220,11 +220,16 @@
 
 (global-set-key (kbd "M-x") 'helm-M-x)
 
+(global-set-key (kbd "M-x")                          'undefined)
+(global-set-key (kbd "M-x")                          'helm-M-x)
+(global-set-key (kbd "C-x r b")                      'helm-filtered-bookmarks)
+(global-set-key (kbd "C-x C-f")                      'helm-find-files)
+
 (helm-mode 1)
 
-(require 'helm-descbinds)
+;;(require 'helm-descbinds)
 
-(helm-descbinds-mode)
+;;(helm-descbinds-mode)
 
 (defun oli/spotify ()
   "wrapper for calling spotify from keyboard shortcut and removing possibility for error"
@@ -696,6 +701,4 @@ completion menu. This workaround stops that annoying behavior."
 ;; End of initialization                                                                           ;;
 ;;-------------------------------------------------------------------------------------------------;;
 
-
-(require 'legalese)
 (message "GNU Emacs")
