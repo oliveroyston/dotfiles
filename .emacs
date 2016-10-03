@@ -120,11 +120,14 @@
 
 (setq user-full-name "Oliver Oyston")
 (setq user-mail-address "")
+(setq default-directory "~/")
 
 ;;-----------------------------------------------;;
 ;; UI enhancements                               ;;
 ;;-----------------------------------------------;;
 
+;; TODO: check this.
+(setq visible-bell t)
 (setq ring-bell-function 'ignore)
 
 (if (display-graphic-p)
@@ -133,56 +136,67 @@
       (scroll-bar-mode -1)
       (mouse-wheel-mode t)))
 
+;; Hide the menu bar, unless on OS X
 (unless (eq system-type 'darwin)
-  (menu-bar-mode -1)
-)
+  (menu-bar-mode -1))
 
+;; Don't blink the cursor.
 (blink-cursor-mode -1)
 
+;; Empty scratch message
 (setq initial-scratch-message nil)
 
+;; Don't show the splash screen.
 (setq inhibit-splash-screen t)
-(setq inhibit-startup-message t)
-;;(setq inhibit-startup-echo-area-message "oliveroyston")
-(defun display-startup-echo-area-message ()
-  (message "GNU Emacs"))
 
+;; Show a custom message after startup (in my case, nothing)
+(defun display-startup-echo-area-message () (message ""))
 
+;; Display line numbers in the mode line.
 (line-number-mode 1)
+
+;; Display column numbers in the mode line.
 (column-number-mode 1)
 
 (setq initial-frame-alist '((width . 120) (height . 52)))
 (setq default-frame-alist '((width . 120) (height . 52)))
 
+;; Use ibuffer.
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-
 (autoload 'ibuffer "ibuffer" "List buffers." t)
 
-(global-set-key (kbd "C-x p i") 'org-cliplink)
-
+;; Kill buffer without being questioned.
 (global-set-key [(control x) (k)] 'kill-this-buffer)
 
-(setq default-directory "~/")
-
+;; Start with an ORG buffer
 (setq initial-major-mode 'org-mode)
 
+;; Can't be bothered to type more than necessary.
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-(setq echo-keystrokes 0.01
-      use-dialog-box nil
-      visible-bell t)
+;; Echo multi-key commands immediately in the echo area
+(setq echo-keystrokes 0.01)
+
+;; Avoid GUI popup messages.
+(setq use-dialog-box nil)
 
 (setq default-major-mode 'text-mode)
 
+;; Don't use tabs for indentation.
 (setq-default indent-tabs-mode nil)
 
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
-
+;; Prettify symbols.
 (global-prettify-symbols-mode 1)
 
 ;; Follow sybolic links to version contolled files.
 (setq vc-follow-symlinks t)
+
+;;-----------------------------------------------;;
+;; Uniquify                                      ;;
+;;-----------------------------------------------;;
+
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
 
 ;;-----------------------------------------------;;
 ;; Backups                                       ;;
@@ -222,6 +236,12 @@
     (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-10")))))
 
 ;;-----------------------------------------------;;
+;; Org Mode / Org Mode Extensions                ;;
+;;-----------------------------------------------;;
+
+(global-set-key (kbd "C-x p i") 'org-cliplink)
+
+;;-----------------------------------------------;;
 ;; Helm / Helm Extensions                        ;;
 ;;-----------------------------------------------;;
 
@@ -237,12 +257,11 @@
 
 (helm-mode 1)
 
-(require 'helm)
-
 (defun fu/helm-find-files-navigate-forward (orig-fun &rest args)
   (if (file-directory-p (helm-get-selection))
       (apply orig-fun args)
     (helm-maybe-exit-minibuffer)))
+
 (advice-add 'helm-execute-persistent-action :around #'fu/helm-find-files-navigate-forward)
 (define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
 
@@ -250,6 +269,7 @@
   (if (= (length helm-pattern) (length (helm-find-files-initial-input)))
       (helm-find-files-up-one-level 1)
     (apply orig-fun args)))
+
 (advice-add 'helm-ff-delete-char-backward :around #'fu/helm-find-files-navigate-back)
 (define-key helm-map (kbd "<backspace>") 'helm-ff-delete-char-backward)
 
@@ -266,15 +286,8 @@
 
 ;;(global-set-key (kbd "C-x M-s") 'oli/spotify)
 
-;;(add-to-list 'display-buffer-alist
-;;             `(,(rx bos "*helm" (* not-newline) "*" eos)
-;;               (display-buffer-in-side-window)
-;;               (inhibit-same-window . t)
-;;               (window-height . 0.4)))
-
-
 ;;-----------------------------------------------;;
-;; Which Key                                     ;;
+;; Folding                                       ;;
 ;;-----------------------------------------------;;
 
 (require 'vimish-fold)
@@ -307,23 +320,8 @@
 ;; Line Numbering                                ;;
 ;;-----------------------------------------------;;
 
-;;(global-linum-mode t)
-;;(add-hook 'prog-mode-hook 'linum-mode)
-
-;;(setq linum-format "%4d \u2502 ")
-;;(setq linum-format " %2d")
-
-(add-hook 'prog-mode-hook
-    (lambda()
-        (linum-mode 1)
-        ;;(setq indicate-empty-lines t)
-        ))
-
-(add-hook 'org-mode-hook
-    (lambda()
-        (linum-mode 1)
-        ;;(setq indicate-empty-lines t)
-        ))
+(add-hook 'prog-mode-hook 'linum-mode)
+(add-hook 'org-mode-hook  'linum-mode)
 
 ;;-----------------------------------------------;;
 ;; Vi-style tilde for empty lines                ;;
@@ -433,7 +431,6 @@
 
 (require 'yasnippet)
 
-;;(yas-global-mode 1)
 (yas-reload-all)
 (add-hook 'prog-mode-hook #'yas-minor-mode)
 
@@ -479,6 +476,7 @@ completion menu. This workaround stops that annoying behavior."
 ;;-----------------------------------------------;;
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
+(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
 
 ;;-----------------------------------------------;;
 ;; Transparency                                  ;;
@@ -515,18 +513,16 @@ completion menu. This workaround stops that annoying behavior."
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
-
-
 ;;-----------------------------------------------;;
 ;; Bookmarks (bm)                                ;;
 ;;-----------------------------------------------;;
+
 (global-set-key (kbd "<C-f2>") 'bm-toggle)
 (global-set-key (kbd "<f2>")   'bm-next)
 (global-set-key (kbd "<S-f2>") 'bm-previous)
 (global-set-key (kbd "<left-fringe> <mouse-5>") 'bm-next-mouse)
 (global-set-key (kbd "<left-fringe> <mouse-4>") 'bm-previous-mouse)
 (global-set-key (kbd "<left-fringe> <mouse-1>") 'bm-toggle-mouse)
-(setq bm-marker 'bm-marker-right)
 
 ;;-----------------------------------------------;;
 ;; Elfeed (RSS reader)                           ;;
@@ -562,7 +558,7 @@ completion menu. This workaround stops that annoying behavior."
 (global-set-key (kbd "C-c s") 'new-shell)
 
 ;;-----------------------------------------------;;
-;; Disable the arrow keys                        ;;
+;; Disable the arrow keys / shift selection      ;;
 ;;-----------------------------------------------;;
 
 (global-unset-key (kbd "<left>"))
@@ -578,6 +574,8 @@ completion menu. This workaround stops that annoying behavior."
 (global-unset-key (kbd "<M-up>"))
 (global-unset-key (kbd "<M-down>"))
 
+(setq shift-select-mode nil)
+
 ;;-----------------------------------------------;;
 ;; Recent files                                  ;;
 ;;-----------------------------------------------;;
@@ -585,9 +583,10 @@ completion menu. This workaround stops that annoying behavior."
 (require 'recentf)
 
 (recentf-mode 1)
+(setq recentf-max-saved-items 50)
 (setq recentf-max-menu-items 25)
 
-(global-set-key "\C-c\ \C-r" 'recentf-open-files)
+(global-set-key (kbd "C-c C-r") 'recentf-open-files)
 
 ;;-----------------------------------------------;;
 ;; Undo Tree                                     ;;
@@ -648,20 +647,27 @@ completion menu. This workaround stops that annoying behavior."
 ;; Paredit                                       ;;
 ;;-----------------------------------------------;;
 
-;;(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+(defvar *paredit-enabled* nil) ;; Disable for now, as I find it pretty annoying!
 
-;;(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-;;(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-;;(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
-;;(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-;;(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-;;(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+(when *paredit-enabled*
+  (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+
+  (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+  (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+  (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+  (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
 
 ;;-----------------------------------------------;;
-;; Miscellaneous                                 ;;
+;; Winner Mode                                   ;;
 ;;-----------------------------------------------;;
 
 (winner-mode 1)
+
+;;-----------------------------------------------;;
+;; Emacs Server                                  ;;
+;;-----------------------------------------------;;
 
 (server-start)
 
@@ -698,9 +704,6 @@ completion menu. This workaround stops that annoying behavior."
   (setq prettify-symbols-alist
         '(
           ("lambda" . 955)  ; λ
-          ;;("->"     . 8594) ; →
-          ;;("=>"     . 8658) ; ⇒
-          ;;("map"    . 8614) ; ↦
           )))
 
 (add-hook 'python-mode-hook 'my-python-prettify-symbols)
@@ -737,9 +740,7 @@ completion menu. This workaround stops that annoying behavior."
   (setq prettify-symbols-alist
         '(
           ("lambda" . 955)  ; λ
-          ;;("->"     . 8594) ; →
-          ;;("=>"     . 8658) ; ⇒
-          ;;("map"    . 8614) ; ↦
+          ("=>"     . 8658) ; ⇒
           )))
 
 (add-hook 'ruby-mode-hook 'my-ruby-prettify-symbols)
@@ -755,5 +756,4 @@ completion menu. This workaround stops that annoying behavior."
 ;; End of initialization                                                                           ;;
 ;;-------------------------------------------------------------------------------------------------;;
 
-(message "GNU Emacs")
 
