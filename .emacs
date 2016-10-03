@@ -27,6 +27,7 @@
     auto-complete
     base16-theme
     browse-kill-ring
+    bm
     caps-lock
     chess
     circe
@@ -142,7 +143,10 @@
 
 (setq inhibit-splash-screen t)
 (setq inhibit-startup-message t)
-(setq inhibit-startup-echo-area-message "oliveroyston")
+;;(setq inhibit-startup-echo-area-message "oliveroyston")
+(defun display-startup-echo-area-message ()
+  (message "GNU Emacs"))
+
 
 (line-number-mode 1)
 (column-number-mode 1)
@@ -177,6 +181,9 @@
 
 (global-prettify-symbols-mode 1)
 
+;; Follow sybolic links to version contolled files.
+(setq vc-follow-symlinks t)
+
 ;;-----------------------------------------------;;
 ;; Backups                                       ;;
 ;;-----------------------------------------------;;
@@ -192,6 +199,9 @@
 
 (set-face-foreground 'font-lock-comment-face "grey45")
 (set-face-foreground 'font-lock-comment-delimiter-face "grey45")
+
+;; Change the selected region color to make it more obvious.
+(set-face-attribute 'region nil :background "#8b0000")
 
 ;;-----------------------------------------------;;
 ;; Default fonts                                 ;;
@@ -227,6 +237,22 @@
 
 (helm-mode 1)
 
+(require 'helm)
+
+(defun fu/helm-find-files-navigate-forward (orig-fun &rest args)
+  (if (file-directory-p (helm-get-selection))
+      (apply orig-fun args)
+    (helm-maybe-exit-minibuffer)))
+(advice-add 'helm-execute-persistent-action :around #'fu/helm-find-files-navigate-forward)
+(define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
+
+(defun fu/helm-find-files-navigate-back (orig-fun &rest args)
+  (if (= (length helm-pattern) (length (helm-find-files-initial-input)))
+      (helm-find-files-up-one-level 1)
+    (apply orig-fun args)))
+(advice-add 'helm-ff-delete-char-backward :around #'fu/helm-find-files-navigate-back)
+(define-key helm-map (kbd "<backspace>") 'helm-ff-delete-char-backward)
+
 ;;(require 'helm-descbinds)
 
 ;;(helm-descbinds-mode)
@@ -239,6 +265,21 @@
   (setq debug-on-error nil))
 
 ;;(global-set-key (kbd "C-x M-s") 'oli/spotify)
+
+;;(add-to-list 'display-buffer-alist
+;;             `(,(rx bos "*helm" (* not-newline) "*" eos)
+;;               (display-buffer-in-side-window)
+;;               (inhibit-same-window . t)
+;;               (window-height . 0.4)))
+
+
+;;-----------------------------------------------;;
+;; Which Key                                     ;;
+;;-----------------------------------------------;;
+
+(require 'vimish-fold)
+;;(global-set-key (kbd "<menu> v f") #'vimish-fold)
+;;(global-set-key (kbd "<menu> v v") #'vimish-fold-delete)
 
 ;;-----------------------------------------------;;
 ;; Which Key                                     ;;
@@ -311,9 +352,6 @@
 
 (show-paren-mode t)
 
-;; Workaround for show-paren-mode messing with the line number colors!
-(custom-set-faces '(linum ((t (:inherit default :foreground "#75715E"  :weight bold)))))
-
 ;; Highlight initial paren when on the closing paren (rather than just after it).
 (defadvice show-paren-function 
   (around show-paren-closing-before
@@ -323,6 +361,9 @@
         (forward-char)
         ad-do-it)
     ad-do-it))
+
+;; Workaround for show-paren-mode messing with the line number colors!
+(custom-set-faces '(linum ((t (:inherit default :foreground "#75715E"  :weight bold)))))
 
 ;;-----------------------------------------------;;
 ;; Rainbow Delimiters                            ;;
@@ -474,6 +515,19 @@ completion menu. This workaround stops that annoying behavior."
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
+
+
+;;-----------------------------------------------;;
+;; Bookmarks (bm)                                ;;
+;;-----------------------------------------------;;
+(global-set-key (kbd "<C-f2>") 'bm-toggle)
+(global-set-key (kbd "<f2>")   'bm-next)
+(global-set-key (kbd "<S-f2>") 'bm-previous)
+(global-set-key (kbd "<left-fringe> <mouse-5>") 'bm-next-mouse)
+(global-set-key (kbd "<left-fringe> <mouse-4>") 'bm-previous-mouse)
+(global-set-key (kbd "<left-fringe> <mouse-1>") 'bm-toggle-mouse)
+(setq bm-marker 'bm-marker-right)
+
 ;;-----------------------------------------------;;
 ;; Elfeed (RSS reader)                           ;;
 ;;-----------------------------------------------;;
@@ -594,14 +648,14 @@ completion menu. This workaround stops that annoying behavior."
 ;; Paredit                                       ;;
 ;;-----------------------------------------------;;
 
-(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+;;(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
 
-(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+;;(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+;;(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+;;(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+;;(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+;;(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+;;(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 
 ;;-----------------------------------------------;;
 ;; Miscellaneous                                 ;;
@@ -702,3 +756,4 @@ completion menu. This workaround stops that annoying behavior."
 ;;-------------------------------------------------------------------------------------------------;;
 
 (message "GNU Emacs")
+
