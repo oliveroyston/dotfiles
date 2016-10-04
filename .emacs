@@ -31,6 +31,7 @@
     caps-lock
     chess
     circe
+    counsel
     dash
     diminish
     elfeed
@@ -55,6 +56,7 @@
     helm-projectile
     helm-robe
     helm-spotify
+    ivy
     jedi
     json-mode
     linum-relative
@@ -85,6 +87,7 @@
     smart-mode-line
     smartparens
     spaceline
+    swiper
     twittering-mode
     undo-tree
     vi-tilde-fringe
@@ -126,10 +129,11 @@
 ;; UI enhancements                               ;;
 ;;-----------------------------------------------;;
 
-;; TODO: check this.
+;; Turn off annoying sounds.
 (setq visible-bell t)
 (setq ring-bell-function 'ignore)
 
+;; If running in a GUI, hide scrollbar/toolbar and enable mousewheel.
 (if (display-graphic-p)
     (progn
       (tool-bar-mode -1)
@@ -166,7 +170,7 @@
 (autoload 'ibuffer "ibuffer" "List buffers." t)
 
 ;; Kill buffer without being questioned.
-(global-set-key [(control x) (k)] 'kill-this-buffer)
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
 
 ;; Start with an ORG buffer
 (setq initial-major-mode 'org-mode)
@@ -190,6 +194,40 @@
 
 ;; Follow sybolic links to version contolled files.
 (setq vc-follow-symlinks t)
+
+; UTF-8
+(setq locale-coding-system 'utf-8) 
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+
+;; Remove text in active region if inserting text
+(delete-selection-mode 1)
+
+;; Don't break lines.
+(setq-default truncate-lines t)
+
+;; Move files to trash when deleting
+(setq delete-by-moving-to-trash t)
+
+;; Allow pasting selection outside of Emacs
+(setq x-select-enable-clipboard t)
+
+;; Auto refresh buffers
+(global-auto-revert-mode 1)
+
+;; Also auto refresh dired, but be quiet about it
+(setq global-auto-revert-non-file-buffers t)
+(setq auto-revert-verbose nil)
+
+;;-----------------------------------------------;;
+;; Global Keybindings                            ;;
+;;-----------------------------------------------;;
+
+;; Have undo/redo on familiar keybindings.
+(global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "C-S-z") 'redo)
 
 ;;-----------------------------------------------;;
 ;; Uniquify                                      ;;
@@ -245,46 +283,69 @@
 ;; Helm / Helm Extensions                        ;;
 ;;-----------------------------------------------;;
 
-(require 'helm-config)
-(require 'helm)
+(defvar *helm-enabled* nil)
 
-(global-set-key (kbd "M-x") 'helm-M-x)
+(when *helm-enabled*
+  (require 'helm-config)
+  (require 'helm)
+  
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  
+  (global-set-key (kbd "M-x") 'undefined)
+  (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "C-x r b") 'helm-filtered-bookmarks)
+  (global-set-key (kbd "C-x C-f") 'helm-find-files)
+  
+  (helm-mode 1)
+  
+  (defun fu/helm-find-files-navigate-forward (orig-fun &rest args)
+    (if (file-directory-p (helm-get-selection))
+        (apply orig-fun args)
+      (helm-maybe-exit-minibuffer)))
+  
+  (advice-add 'helm-execute-persistent-action :around #'fu/helm-find-files-navigate-forward)
+  (define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
+  
+  (defun fu/helm-find-files-navigate-back (orig-fun &rest args)
+    (if (= (length helm-pattern) (length (helm-find-files-initial-input)))
+        (helm-find-files-up-one-level 1)
+      (apply orig-fun args)))
+  
+  (advice-add 'helm-ff-delete-char-backward :around #'fu/helm-find-files-navigate-back)
+  (define-key helm-map (kbd "<backspace>") 'helm-ff-delete-char-backward)
+  
+  ;;(require 'helm-descbinds)
+  
+  ;;(helm-descbinds-mode)
+  
+  (defun oli/spotify ()
+    "wrapper for calling spotify from keyboard shortcut and removing possibility for error"
+    (interactive)
+    (setq debug-on-error t)
+    (helm-spotify)
+    (setq debug-on-error nil))
+  
+  ;;(global-set-key (kbd "C-x M-s") 'oli/spotify)
+  )
 
-(global-set-key (kbd "M-x")                          'undefined)
-(global-set-key (kbd "M-x")                          'helm-M-x)
-(global-set-key (kbd "C-x r b")                      'helm-filtered-bookmarks)
-(global-set-key (kbd "C-x C-f")                      'helm-find-files)
+;;-----------------------------------------------;;
+;; Ivy                                           ;;
+;;-----------------------------------------------;;
 
-(helm-mode 1)
+(defvar *ivy-enabled* t)
 
-(defun fu/helm-find-files-navigate-forward (orig-fun &rest args)
-  (if (file-directory-p (helm-get-selection))
-      (apply orig-fun args)
-    (helm-maybe-exit-minibuffer)))
-
-(advice-add 'helm-execute-persistent-action :around #'fu/helm-find-files-navigate-forward)
-(define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
-
-(defun fu/helm-find-files-navigate-back (orig-fun &rest args)
-  (if (= (length helm-pattern) (length (helm-find-files-initial-input)))
-      (helm-find-files-up-one-level 1)
-    (apply orig-fun args)))
-
-(advice-add 'helm-ff-delete-char-backward :around #'fu/helm-find-files-navigate-back)
-(define-key helm-map (kbd "<backspace>") 'helm-ff-delete-char-backward)
-
-;;(require 'helm-descbinds)
-
-;;(helm-descbinds-mode)
-
-(defun oli/spotify ()
-  "wrapper for calling spotify from keyboard shortcut and removing possibility for error"
-  (interactive)
-  (setq debug-on-error t)
-  (helm-spotify)
-  (setq debug-on-error nil))
-
-;;(global-set-key (kbd "C-x M-s") 'oli/spotify)
+(when *ivy-enabled*
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (global-set-key (kbd "C-s") 'swiper)
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+  (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+  (global-set-key (kbd "<f1> l") 'counsel-load-library)
+  (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char))
 
 ;;-----------------------------------------------;;
 ;; Folding                                       ;;
@@ -385,10 +446,6 @@
 (when (require 'volatile-highlights nil 'noerror)
   (volatile-highlights-mode t))
 
-(delete-selection-mode 1)
-
-(setq-default truncate-lines t)
-
 ;;-----------------------------------------------;;
 ;; Mode line custmomization                      ;;
 ;;-----------------------------------------------;;
@@ -408,6 +465,17 @@
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
 (global-set-key (kbd "M-p") 'ace-window)
+
+;;-----------------------------------------------;;
+;; Avy                                           ;;
+;;-----------------------------------------------;;
+
+(global-set-key (kbd "C-:") 'avy-goto-char)
+(global-set-key (kbd "C-'") 'avy-goto-char-2)
+(global-set-key (kbd "M-g f") 'avy-goto-line)
+(global-set-key (kbd "M-g w") 'avy-goto-word-1)
+(global-set-key (kbd "M-g e") 'avy-goto-word-0)
+(avy-setup-default)
 
 ;;-----------------------------------------------;;
 ;; Neotree                                       ;;
@@ -583,7 +651,7 @@ completion menu. This workaround stops that annoying behavior."
 (require 'recentf)
 
 (recentf-mode 1)
-(setq recentf-max-saved-items 50)
+(setq recentf-max-saved-items 100)
 (setq recentf-max-menu-items 25)
 
 (global-set-key (kbd "C-c C-r") 'recentf-open-files)
