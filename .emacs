@@ -126,7 +126,7 @@
 (setq default-directory "~/")
 
 ;;-----------------------------------------------;;
-;; UI enhancements                               ;;
+;; UI / behaviour enhancements                   ;;
 ;;-----------------------------------------------;;
 
 ;; Turn off annoying sounds.
@@ -161,6 +161,9 @@
 
 ;; Display column numbers in the mode line.
 (column-number-mode 1)
+
+;; Show size indication in mode line.
+(size-indication-mode t)
 
 (setq initial-frame-alist '((width . 120) (height . 52)))
 (setq default-frame-alist '((width . 120) (height . 52)))
@@ -221,6 +224,18 @@
 (setq global-auto-revert-non-file-buffers t)
 (setq auto-revert-verbose nil)
 
+;; reduce the frequency of garbage collection by making it happen on
+;; each 50MB of allocated data (the default is on every 0.76MB)
+(setq gc-cons-threshold 50000000)
+
+;; warn when opening files bigger than 100MB
+(setq large-file-warning-threshold 100000000)
+
+;; nice scrolling
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
+
 ;;-----------------------------------------------;;
 ;; Global Keybindings                            ;;
 ;;-----------------------------------------------;;
@@ -228,6 +243,14 @@
 ;; Have undo/redo on familiar keybindings.
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-S-z") 'redo)
+
+;; Align your code in a pretty way.
+(global-set-key (kbd "C-x \\") 'align-regexp)
+
+;; Font size
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-)") 'text-scale-adjust)
 
 ;;-----------------------------------------------;;
 ;; Uniquify                                      ;;
@@ -242,6 +265,30 @@
 
 (setq make-backup-files nil)
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+
+;;-----------------------------------------------;;
+;; MAC OS Customizations                         ;;
+;;-----------------------------------------------;;
+
+(defun prelude-swap-meta-and-super ()
+  "Swap the mapping of Meta and Super. Very useful for people using their Mac with a
+   Windows external keyboard from time to time."
+  (interactive)
+  (if (eq mac-command-modifier 'super)
+      (progn
+        (setq mac-command-modifier 'meta)
+        (setq mac-option-modifier 'super)
+        (message "Command is now bound to META and Option is bound to SUPER."))
+    (progn
+      (setq mac-command-modifier 'super)
+      (setq mac-option-modifier 'meta)
+      (message "Command is now bound to SUPER and Option is bound to META."))))
+
+(if (eq system-type 'darwin)
+
+  (prelude-swap-meta-and-super)
+  (global-set-key (kbd "C-c w") 'prelude-swap-meta-and-super)
+)
 
 ;;-----------------------------------------------;;
 ;; Theming                                       ;;
