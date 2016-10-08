@@ -1,3 +1,7 @@
+;;-------------------------------------------------------------------------------------------------;;
+;; Oliver P. Oyston: Emacs Customization File                                                      ;;
+;;-------------------------------------------------------------------------------------------------;;
+
 (require 'cl)
 (require 'package)
 
@@ -9,7 +13,8 @@
              '("melpa" . "https://melpa.org/packages/"))
 
 (when (< emacs-major-version 24)
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+  (add-to-list 'package-archives
+               '("gnu" . "http://elpa.gnu.org/packages/")))
 
 (package-initialize)
 
@@ -129,6 +134,8 @@
 (setq user-mail-address "")
 (setq default-directory "~/")
 
+;; TODO: Load any 'secret' config here.
+
 ;;-----------------------------------------------;;
 ;; UI / behaviour enhancements                   ;;
 ;;-----------------------------------------------;;
@@ -199,6 +206,9 @@
 ;; Don't use tabs for indentation.
 (setq-default indent-tabs-mode nil)
 
+;; A tab is 4 spaces
+(setq tab-width 4)
+
 ;; Prettify symbols.
 (global-prettify-symbols-mode 1)
 
@@ -231,8 +241,7 @@
 (setq global-auto-revert-non-file-buffers t)
 (setq auto-revert-verbose nil)
 
-;; reduce the frequency of garbage collection by making it happen on
-;; each 50MB of allocated data (the default is on every 0.76MB)
+;; Reduce frequency of garbage collection (50MB of allocated data)
 (setq gc-cons-threshold 50000000)
 
 ;; warn when opening files bigger than 100MB
@@ -243,7 +252,11 @@
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 
+;; Not entirely sure that I wan't desktop-save-mode yet...
 ;;(desktop-save-mode 1)
+
+;; Sentences do not need to end with double space.
+(setq sentence-end-double-space nil)
 
 ;;-----------------------------------------------;;
 ;; Global Keybindings                            ;;
@@ -261,7 +274,30 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-)") 'text-scale-adjust)
 
-(setq sentence-end-double-space nil)
+;; Show empty lines.
+(setq-default indicate-empty-lines t)
+
+;; Add newline when at buffer end
+(setq next-line-add-newlines t)
+
+;; Always newline at end of file
+(setq require-final-newline 't)
+
+;; Recursive minibuffers.
+(setq enable-recursive-minibuffers t)
+
+;; Pop to mark - easy way to get back to previous places.
+(bind-key "C-x p" 'pop-to-mark-command)
+(setq set-mark-command-repeat-pop t)
+
+;;-----------------------------------------------;;
+;; Evil Mode                                     ;;
+;;-----------------------------------------------;;
+(defvar *evil-enabled* nil)
+
+(when *evil-enabled*
+  (require 'evil)
+  (evil-mode 1))
 
 ;;-----------------------------------------------;;
 ;; Uniquify                                      ;;
@@ -305,10 +341,12 @@
 ;; Theming                                       ;;
 ;;-----------------------------------------------;;
 
+;; TODO: Add some theme configuration.
+
 (load-theme 'monokai t)
 
-(set-face-foreground 'font-lock-comment-face "grey45")
-(set-face-foreground 'font-lock-comment-delimiter-face "grey45")
+;;(set-face-foreground 'font-lock-comment-face "grey45")
+;;(set-face-foreground 'font-lock-comment-delimiter-face "grey45")
 
 ;; Change the selected region color to make it more obvious.
 (set-face-attribute 'region nil :background "#8b0000")
@@ -384,7 +422,7 @@
     (setq debug-on-error nil))
   
   ;;(global-set-key (kbd "C-x M-s") 'oli/spotify)
-  )
+ )
 
 ;;-----------------------------------------------;;
 ;; Ivy                                           ;;
@@ -403,13 +441,22 @@
   (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
   (global-set-key (kbd "<f1> l") 'counsel-load-library)
   (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-  (global-set-key (kbd "<f2> u") 'counsel-unicode-char))
+  (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+
+  ;; Fuzzy matching
+  ;;(setq ivy-re-builders-alist
+  ;;      '((t . ivy--regex-fuzzy)))
+  
+  ;; No initial ^
+  ;;(setq ivy-initial-inputs-alist nil)
+)
 
 ;;-----------------------------------------------;;
 ;; Folding                                       ;;
 ;;-----------------------------------------------;;
 
 (require 'vimish-fold)
+;; TODO: Add some appropriate keybindings,
 ;;(global-set-key (kbd "<menu> v f") #'vimish-fold)
 ;;(global-set-key (kbd "<menu> v v") #'vimish-fold-delete)
 
@@ -506,6 +553,7 @@
 ;; Volatile Highlights                           ;;
 ;;-----------------------------------------------;;
 
+;; TODO: Consistency.
 (when (require 'volatile-highlights nil 'noerror)
   (volatile-highlights-mode t))
 
@@ -854,6 +902,15 @@ completion menu. This workaround stops that annoying behavior."
                    (forward-word arg)
                    (point)))
       (activate-mark))))
+
+;;-----------------------------------------------;;
+;; Window resizing.                              ;;
+;;-----------------------------------------------;;
+
+(global-set-key (kbd "S-C-<left>")  'shrink-window-horizontally)
+(global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "S-C-<down>")  'shrink-window)
+(global-set-key (kbd "S-C-<up>")    'enlarge-window)
 
 ;;-------------------------------------------------------------------------------------------------;;
 ;; Python Customizations                                                                           ;;
