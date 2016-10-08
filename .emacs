@@ -851,22 +851,23 @@ completion menu. This workaround stops that annoying behavior."
 ;; HTML Bookmarks                                ;;
 ;;-----------------------------------------------;;
 
-(require 's)
-(require 'f)
+(when (file-exists-p "~/bookmarks.txt")
+  (require 's)
+  (require 'f)
 
-(defvar oli/bookmark-data
-  (--map (s-split "|" it)  (s-split "\n" (f-read "~/data.txt") t)))
+  (defvar oli/bookmark-data
+    (--map (s-split "|" it)  (s-split "\n" (f-read "~/bookmarks.txt") t)))
 
-(defvar oli/bookmark-source
+  (defvar oli/bookmark-source
       `((name . "Bookmark Manager")
         (candidates . ,(mapcar 'car oli/bookmark-data))
         (action . (lambda (candidate)
                     (browse-url (format "%s" (car (cdr (assoc candidate oli/bookmark-data)))))))))
 
-(defun oli/bookmarks ()
-    "Allow my HTML bookmarks to be opened / searched via helm."
+  (defun oli/bookmarks ()
+     "Allow my HTML bookmarks to be opened / searched via helm."
     (interactive)
-    (helm :sources '(oli/bookmark-source)))
+    (helm :sources '(oli/bookmark-source))))
 
 ;;-----------------------------------------------;;
 ;; Mark Current Word                             ;;
