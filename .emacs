@@ -24,6 +24,7 @@
     ace-window
     async
     avy
+    avy-zap
     auto-complete
     base16-theme
     browse-kill-ring
@@ -31,6 +32,7 @@
     caps-lock
     chess
     circe
+    color-theme-sanityinc-tomorrow
     counsel
     dash
     diminish
@@ -46,6 +48,7 @@
     fireplace
     flycheck
     git-commit
+    git-timemachine
     helm
     helm-circe
     helm-core
@@ -59,6 +62,7 @@
     ivy
     jedi
     json-mode
+    leuven-theme
     linum-relative
     magit
     magit-popup
@@ -146,6 +150,9 @@
 
 ;; Don't blink the cursor.
 (blink-cursor-mode -1)
+
+;; Set a distinct cursor color.
+;;(set-cursor-color "yellow") 
 
 ;; Empty scratch message
 (setq initial-scratch-message nil)
@@ -236,6 +243,8 @@
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 
+;;(desktop-save-mode 1)
+
 ;;-----------------------------------------------;;
 ;; Global Keybindings                            ;;
 ;;-----------------------------------------------;;
@@ -251,6 +260,8 @@
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-)") 'text-scale-adjust)
+
+(setq sentence-end-double-space nil)
 
 ;;-----------------------------------------------;;
 ;; Uniquify                                      ;;
@@ -469,7 +480,12 @@
     ad-do-it))
 
 ;; Workaround for show-paren-mode messing with the line number colors!
-(custom-set-faces '(linum ((t (:inherit default :foreground "#75715E"  :weight bold)))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(linum ((t (:inherit default :foreground "#75715E" :weight bold)))))
 
 ;;-----------------------------------------------;;
 ;; Rainbow Delimiters                            ;;
@@ -502,6 +518,8 @@
 (require 'spaceline-config)
 
 (spaceline-emacs-theme)
+
+(require 'avy-zap)
 
 ;;-----------------------------------------------;;
 ;; Ace Jump / Ace Window                         ;;
@@ -756,7 +774,8 @@ completion menu. This workaround stops that annoying behavior."
 (diminish 'auto-complete-mode)
 (diminish 'page-break-lines-mode)
 (diminish 'undo-tree-mode)
-(diminish 'flycheck-mode)
+(diminish 'yas-minor-mode)
+(diminish 'ivy-mode)
 
 ;;-----------------------------------------------;;
 ;; Paredit                                       ;;
@@ -806,6 +825,35 @@ completion menu. This workaround stops that annoying behavior."
     "Allow my HTML bookmarks to be opened / searched via helm."
     (interactive)
     (helm :sources '(oli/bookmark-source)))
+
+;;-----------------------------------------------;;
+;; Mark Current Word                             ;;
+;;-----------------------------------------------;;
+
+(defun my-mark-current-word (&optional arg allow-extend)
+  "Put point at beginning of current word, set mark at end."
+  (interactive "p\np")
+  (setq arg (if arg arg 1))
+  (if (and allow-extend
+           (or (and (eq last-command this-command) (mark t))
+               (region-active-p)))
+      (set-mark
+       (save-excursion
+         (when (< (mark) (point))
+           (setq arg (- arg)))
+         (goto-char (mark))
+         (forward-word arg)
+         (point)))
+    (let ((wbounds (bounds-of-thing-at-point 'word)))
+      (unless (consp wbounds)
+        (error "No word at point"))
+      (if (>= arg 0)
+          (goto-char (car wbounds))
+        (goto-char (cdr wbounds)))
+      (push-mark (save-excursion
+                   (forward-word arg)
+                   (point)))
+      (activate-mark))))
 
 ;;-------------------------------------------------------------------------------------------------;;
 ;; Python Customizations                                                                           ;;
@@ -870,5 +918,4 @@ completion menu. This workaround stops that annoying behavior."
 ;;-------------------------------------------------------------------------------------------------;;
 ;; End of initialization                                                                           ;;
 ;;-------------------------------------------------------------------------------------------------;;
-
 
