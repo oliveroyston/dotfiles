@@ -1,6 +1,6 @@
-;;-------------------------------------------------------------------------------------------------;;
-;; Oliver P. Oyston: Emacs Customization File                                                      ;;
-;;-------------------------------------------------------------------------------------------------;;
+;;-----------------------------------------------------------------------------;;
+;; Oliver P. Oyston: Emacs Customization File                                  ;;
+;;-----------------------------------------------------------------------------;;
 
 (require 'cl)
 (require 'package)
@@ -258,6 +258,18 @@
 ;; Sentences do not need to end with double space.
 (setq sentence-end-double-space nil)
 
+;; Show empty lines.
+(setq-default indicate-empty-lines t)
+
+;; Add newline when at buffer end
+(setq next-line-add-newlines t)
+
+;; Always newline at end of file
+(setq require-final-newline 't)
+
+;; Recursive minibuffers.
+(setq enable-recursive-minibuffers t)
+
 ;;-----------------------------------------------;;
 ;; Global Keybindings                            ;;
 ;;-----------------------------------------------;;
@@ -274,20 +286,8 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-)") 'text-scale-adjust)
 
-;; Show empty lines.
-(setq-default indicate-empty-lines t)
-
-;; Add newline when at buffer end
-(setq next-line-add-newlines t)
-
-;; Always newline at end of file
-(setq require-final-newline 't)
-
-;; Recursive minibuffers.
-(setq enable-recursive-minibuffers t)
-
 ;; Pop to mark - easy way to get back to previous places.
-(bind-key "C-x p" 'pop-to-mark-command)
+(global-set-key (kbd  "C-x p") 'pop-to-mark-command)
 (setq set-mark-command-repeat-pop t)
 
 ;;-----------------------------------------------;;
@@ -368,12 +368,6 @@
   (when (member "DejaVu Sans Mono" (font-family-list))
     (add-to-list 'initial-frame-alist '(font . "DejaVu Sans Mono-10"))
     (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono-10")))))
-
-;;-----------------------------------------------;;
-;; Org Mode / Org Mode Extensions                ;;
-;;-----------------------------------------------;;
-
-(global-set-key (kbd "C-x p i") 'org-cliplink)
 
 ;;-----------------------------------------------;;
 ;; Helm / Helm Extensions                        ;;
@@ -790,7 +784,7 @@ completion menu. This workaround stops that annoying behavior."
 (require 'fill-column-indicator)
 
 (setq fci-rule-color "darkred")
-(setq fci-rule-column 100)
+(setq fci-rule-column 80)
 
 (defun sanityinc/fci-enabled-p () (symbol-value 'fci-mode))
 
@@ -912,9 +906,18 @@ completion menu. This workaround stops that annoying behavior."
 (global-set-key (kbd "S-C-<down>")  'shrink-window)
 (global-set-key (kbd "S-C-<up>")    'enlarge-window)
 
-;;-------------------------------------------------------------------------------------------------;;
-;; Python Customizations                                                                           ;;
-;;-------------------------------------------------------------------------------------------------;;
+
+
+
+;;-----------------------------------------------------------------------------;;
+;; Org Mode                                                                    ;;
+;;-----------------------------------------------------------------------------;;
+
+;;(global-set-key (kbd "C-x p i") 'org-cliplink)
+
+;;-----------------------------------------------------------------------------;;
+;; Python Customizations                                                       ;;
+;;-----------------------------------------------------------------------------;;
 ;;-----------------------------------------------;;
 ;; Prettify Symbols                              ;;
 ;;-----------------------------------------------;;
@@ -948,9 +951,9 @@ completion menu. This workaround stops that annoying behavior."
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:complete-on-dot t)
 
-;;-------------------------------------------------------------------------------------------------;;
-;; Ruby Customizations                                                                             ;;
-;;-------------------------------------------------------------------------------------------------;;
+;;-----------------------------------------------------------------------------;;
+;; Ruby Customizations                                                         ;;
+;;-----------------------------------------------------------------------------;;
 ;;-----------------------------------------------;;
 ;; Prettify Symbols                              ;;
 ;;-----------------------------------------------;;
@@ -972,7 +975,7 @@ completion menu. This workaround stops that annoying behavior."
 (add-hook 'ruby-mode-hook 'robe-mode)
 (add-hook 'robe-mode-hook 'ac-robe-setup)
 
-;;-------------------------------------------------------------------------------------------------;;
-;; End of initialization                                                                           ;;
-;;-------------------------------------------------------------------------------------------------;;
+;;-----------------------------------------------------------------------------;;
+;; End of initialization                                                       ;;
+;;-----------------------------------------------------------------------------;;
 
