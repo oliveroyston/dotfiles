@@ -39,6 +39,7 @@
     circe
     color-theme-sanityinc-tomorrow
     counsel
+    counsel-projectile
     dash
     diminish
     elfeed
@@ -207,7 +208,7 @@
 (setq-default indent-tabs-mode nil)
 
 ;; A tab is 4 spaces
-(setq tab-width 4)
+;;(setq tab-width 4)
 
 ;; Prettify symbols.
 (global-prettify-symbols-mode 1)
@@ -268,7 +269,7 @@
 (setq require-final-newline 't)
 
 ;; Recursive minibuffers.
-(setq enable-recursive-minibuffers t)
+;;(setq enable-recursive-minibuffers t)
 
 ;;-----------------------------------------------;;
 ;; Global Keybindings                            ;;
@@ -331,11 +332,31 @@
       (setq mac-option-modifier 'meta)
       (message "Command is now bound to SUPER and Option is bound to META."))))
 
-(if (eq system-type 'darwin)
+(defvar f-script '"tell application \"System Preferences\"
+	               reveal anchor \"keyboardTab\" of pane \"com.apple.preference.keyboard\"
+                   end tell
+                   tell application \"System Events\" to tell process \"System Preferences\"
+	               click checkbox 1 of tab group 1 of window 1
+                   end tell
+                   quit application \"System Preferences\"")
 
-  (prelude-swap-meta-and-super)
-  (global-set-key (kbd "C-c w") 'prelude-swap-meta-and-super)
+
+(defun toggle-f-key-functionality()
+   (interactive)
+   (do-applescript f-script))
+
+(if (eq system-type 'darwin)
+    
+    ;;(prelude-swap-meta-and-super)
+    ;;(global-set-key (kbd "C-c w") 'prelude-swap-meta-and-super)
+
+    ;; Have both command and option as meta.
+    (setq mac-command-modifier 'meta)
+    (setq mac-option-modifier 'meta)
 )
+
+
+
 
 ;;-----------------------------------------------;;
 ;; Theming                                       ;;
@@ -475,6 +496,7 @@
 ;;-----------------------------------------------;;
 
 (projectile-global-mode)
+(counsel-projectile-on)
 
 ;;-----------------------------------------------;;
 ;; Line Numbering                                ;;
