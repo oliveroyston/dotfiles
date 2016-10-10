@@ -127,6 +127,8 @@
     (when (not (package-installed-p p))
       (package-install p))))
 
+(defconst *is-a-mac* (eq system-type 'darwin))
+
 ;;-----------------------------------------------;;
 ;; User Information                              ;;
 ;;-----------------------------------------------;;
@@ -318,7 +320,8 @@
 ;; MAC OS Customizations                         ;;
 ;;-----------------------------------------------;;
 
-(defun prelude-swap-meta-and-super ()
+(when *is-a-mac*
+   (defun prelude-swap-meta-and-super ()
   "Swap the mapping of Meta and Super. Very useful for people using their Mac with a
    Windows external keyboard from time to time."
   (interactive)
@@ -332,31 +335,25 @@
       (setq mac-option-modifier 'meta)
       (message "Command is now bound to SUPER and Option is bound to META."))))
 
-(defvar f-script '"tell application \"System Preferences\"
+  (defvar f-script '"tell application \"System Preferences\"
 	               reveal anchor \"keyboardTab\" of pane \"com.apple.preference.keyboard\"
-                   end tell
-                   tell application \"System Events\" to tell process \"System Preferences\"
-	               click checkbox 1 of tab group 1 of window 1
-                   end tell
-                   quit application \"System Preferences\"")
+                     end tell
+                     tell application \"System Events\" to tell process \"System Preferences\"
+	                 click checkbox 1 of tab group 1 of window 1
+                     end tell
+                     quit application \"System Preferences\"")
 
+  ;;(prelude-swap-meta-and-super)
+  ;;(global-set-key (kbd "C-c w") 'prelude-swap-meta-and-super)
 
-(defun toggle-f-key-functionality()
-   (interactive)
-   (do-applescript f-script))
+  ;; Have both command and option as meta.
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'meta)
 
-(if (eq system-type 'darwin)
-    
-    ;;(prelude-swap-meta-and-super)
-    ;;(global-set-key (kbd "C-c w") 'prelude-swap-meta-and-super)
-
-    ;; Have both command and option as meta.
-    (setq mac-command-modifier 'meta)
-    (setq mac-option-modifier 'meta)
-)
-
-
-
+  (defun toggle-f-key-functionality()
+     "Toggles the use of the function keys as fn keys and special feature."
+     (interactive)
+     (do-applescript f-script)))
 
 ;;-----------------------------------------------;;
 ;; Theming                                       ;;
@@ -583,12 +580,11 @@
 
 (spaceline-emacs-theme)
 
-(require 'avy-zap)
-
 ;;-----------------------------------------------;;
 ;; Ace Jump / Ace Window                         ;;
 ;;-----------------------------------------------;;
 
+(require 'avy-zap)
 (require 'ace-jump-mode)
 
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
@@ -928,9 +924,6 @@ completion menu. This workaround stops that annoying behavior."
 (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
 (global-set-key (kbd "S-C-<down>")  'shrink-window)
 (global-set-key (kbd "S-C-<up>")    'enlarge-window)
-
-
-
 
 ;;-----------------------------------------------------------------------------;;
 ;; Org Mode                                                                    ;;
