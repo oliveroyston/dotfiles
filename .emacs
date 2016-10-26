@@ -865,7 +865,10 @@ completion menu. This workaround stops that annoying behavior."
 ;; Emacs Server                                  ;;
 ;;-----------------------------------------------;;
 
-(server-start)
+;; Only start the server running if it isn't running already.
+
+(load "server")
+(unless (server-running-p) (server-start))
 
 ;;-----------------------------------------------;;
 ;; HTML Bookmarks                                ;;
