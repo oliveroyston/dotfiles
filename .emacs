@@ -103,6 +103,7 @@
     twittering-mode
     undo-tree
     vi-tilde-fringe
+    vimish-fold
     virtualenvwrapper
     volatile-highlights
     web-mode
