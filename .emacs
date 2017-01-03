@@ -505,6 +505,9 @@
 (add-hook 'prog-mode-hook 'linum-mode)
 (add-hook 'org-mode-hook  'linum-mode)
 
+(eval-after-load "linum"
+  '(set-face-attribute 'linum nil :height 100))
+
 ;;-----------------------------------------------;;
 ;; Vi-style tilde for empty lines                ;;
 ;;-----------------------------------------------;;
