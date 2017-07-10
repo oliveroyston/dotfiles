@@ -505,6 +505,9 @@
 (add-hook 'prog-mode-hook 'linum-mode)
 (add-hook 'org-mode-hook  'linum-mode)
 
+(eval-after-load "linum"
+  '(set-face-attribute 'linum nil :height 100))
+
 ;;-----------------------------------------------;;
 ;; Vi-style tilde for empty lines                ;;
 ;;-----------------------------------------------;;
@@ -940,6 +943,18 @@ completion menu. This workaround stops that annoying behavior."
   (let ((inhibit-read-only t))
     (erase-buffer)
     (eshell-send-input)))
+
+;;-----------------------------------------------;;
+;; ansi-term improvements.                       ;;
+;;-----------------------------------------------;;
+
+;; Don't prompy about running processes when killing ansi-term buffer.
+(defun set-no-process-query-on-exit ()
+  (let ((proc (get-buffer-process (current-buffer))))
+    (when (processp proc)
+      (set-process-query-on-exit-flag proc nil))))
+
+(add-hook 'term-exec-hook 'set-no-process-query-on-exit)
 
 ;;-----------------------------------------------------------------------------;;
 ;; Org Mode                                                                    ;;
