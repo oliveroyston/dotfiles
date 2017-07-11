@@ -1,0 +1,52 @@
+[include]
+        path = ~/.gitconfig.local
+
+[core]
+	excludesfile = /Users/oliveroyston/.gitignore_global
+
+[Difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[alias]
+	co = checkout
+        cp = cherry-pick
+        st = status -s
+        ec = config --global -e
+        cob = checkout -b
+        undo = reset HEAD~1 --mixed
+        amend = commit -a --amend
+        nuke = git reset HEAD --hard
+        wipe = !git add -A && git commit -qm 'WIPE SAVEPOINT' && git reset HEAD~1 --hard
+        out = log --pretty=oneline --abbrev-commit --graph @{u}..
+        in = !git fetch && git log --pretty=oneline --abbrev-commit --graph ..@{u}
+        branch-name = rev-parse --abbrev-ref HEAD
+        publish = "!git push --set-upstream origin $(git branch-name)"
+        r = remote -v
+        hist = log --graph --pretty=custom
+        l = log --pretty=custom
+        ll = log --stat --abbrev-commit
+        la = "!git config -l | grep alias | cut -c 7-"
+
+[pretty]
+        custom = "%C(magenta)%h%C(red)%d %C(yellow)%ar %C(green)%s %C(yellow)(%an)"
+        #                     │        │            │            │             └─ author name
+        #                     │        │            │            └─ message
+        #                     │        │            └─ date (relative)
+        #                     │        └─ decorations (branch, heads or tags)
+        #                     └─ hash (abbreviated)
+
+[fetch]
+        prune = true
+
+[help]
+        autocorrect = 0
+
+[color]
+        diff = auto
+        status = auto
+        branch = auto
+        ui = true
