@@ -165,7 +165,10 @@
 (blink-cursor-mode -1)
 
 ;; Set a distinct cursor color.
-;;(set-cursor-color "yellow") 
+(set-cursor-color "yellow")
+
+;; Show time
+(display-time-mode 1)
 
 ;; Empty scratch message
 (setq initial-scratch-message nil)
